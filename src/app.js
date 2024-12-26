@@ -40,6 +40,6 @@ mongoose.connect(uriMongo)
         () =>
            
             app.listen(PORT, ()=> {
-                console.log("Listening on PORT: "+PORT);
+                console.log("mongo Listening on PORT: "+PORT);
             }))
     .catch((error) => console.error('Error en conexion:', error))
