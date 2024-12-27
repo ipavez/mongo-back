@@ -1,9 +1,12 @@
 import { Router } from 'express';
 import userModel from '../models/user.model.js';
+import { isValidPassword } from '../utils.js';
+import jwt from 'jsonwebtoken';
 const router = Router();
 
 
 router.post('/register', async(req, res) => {
+    try{
     const { name, email, password } = req.body;
     const exists = await userModel.find({email : email}).exec();
     console.log(exists)
@@ -11,13 +14,30 @@ router.post('/register', async(req, res) => {
         return res.status(406).send({ status: 'error', error: 'User already exists' });
     }
     const user = userModel.create({ user_name : name , email : email, password : password });
-    res.status(201).send({ status: 'ok', user });
-})
+    res.status(201).send({ status: 'ok', message: 'User created', user: user });
+}catch(error){console.log(error)}
+});
 
 
-router.get('/login', (req, res) => {
-    res.render('login');
-})
+router.post('/login', async(req, res) => {
+    try{
+    const { email, password } = req.body;
+    const user = await userModel.find({email : email}).exec();
+    if (user.length > 0) {
+        if(isValidPassword(user[0], password)){
+            let token = jwt.sign( {email, role:"user"}, "coderSecret", { expiresIn : "24h"});
+            res.cookie('tokenCookie', token, {httpOnly: true, maxAge:60*60*1000 }).send({message : "Login exitoso"});
+        }else{
+            return res.status(401).send({ status: 'error', error: 'Invalid password' });
+        }
+        return res.status(401).send({ status: 'error', error: 'User not found' });
+    };
+    
+    }catch(error){
+        console.log(error);
+    }
+});
+
 
 
 router.get('/current', (req, res) => {
