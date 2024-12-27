@@ -2,7 +2,13 @@ import { Router } from 'express';
 import userModel from '../models/user.model.js';
 import { isValidPassword } from '../utils.js';
 import jwt from 'jsonwebtoken';
+import pJwt from 'passport-jwt';
+import {passportCall, authorization} from '../utils.js';
+import cookieExtractor from '../config/passport.config.js';
+
 const router = Router();
+const ExtractJwt = pJwt.ExtractJwt;
+
 
 
 router.post('/register', async(req, res) => {
@@ -30,8 +36,7 @@ router.post('/login', async(req, res) => {
         }else{
             return res.status(401).send({ status: 'error', error: 'Invalid password' });
         }
-        return res.status(401).send({ status: 'error', error: 'User not found' });
-    };
+    }
     
     }catch(error){
         console.log(error);
@@ -40,8 +45,9 @@ router.post('/login', async(req, res) => {
 
 
 
-router.get('/current', (req, res) => {
-    
-})
+router.get('/current', passportCall('jwt'),(req, res) => {
+    const kuki = ExtractJwt.fromExtractors([cookieExtractor]);
+    res.send({ status: 'success', payload: req.user });
+});
 
 export default router;
