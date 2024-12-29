@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import userModel from '../models/user.model.js';
-import { isValidPassword } from '../utils.js';
+import { isValidPassword, verifyToken } from '../utils.js';
 import jwt from 'jsonwebtoken';
 import pJwt from 'passport-jwt';
-import {passportCall, authorization} from '../utils.js';
-import cookieExtractor from '../config/passport.config.js';
+import {passportCall} from '../utils.js';
+import { isLoggedIn, isLoggedOut } from '../middlewares/auth.js';
 
 const router = Router();
 const ExtractJwt = pJwt.ExtractJwt;
@@ -15,7 +15,6 @@ router.post('/register', async(req, res) => {
     try{
     const { name, email, password } = req.body;
     const exists = await userModel.find({email : email}).exec();
-    console.log(exists)
     if (exists.length > 0) {
         return res.status(406).send({ status: 'error', error: 'User already exists' });
     }
@@ -32,7 +31,7 @@ router.post('/login', async(req, res) => {
     if (user.length > 0) {
         if(isValidPassword(user[0], password)){
             let token = jwt.sign( {email, role:"user"}, "coderSecret", { expiresIn : "24h"});
-            res.cookie('tokenCookie', token, {httpOnly: true, maxAge:60*60*1000 }).send({message : "Login exitoso"});
+            res.cookie('tokenCookie', token, {httpOnly: true, maxAge:60*60*1000 }).send({user, token});
         }else{
             return res.status(401).send({ status: 'error', error: 'Invalid password' });
         }
@@ -45,9 +44,11 @@ router.post('/login', async(req, res) => {
 
 
 
-router.get('/current', passportCall('jwt'),(req, res) => {
-    const kuki = ExtractJwt.fromExtractors([cookieExtractor]);
-    res.send({ status: 'success', payload: req.user });
+router.get('/current', passportCall('jwt'),async(req, res) => {
+    const cookies = req.cookies;
+    const token = jwt.verify(cookies.tokenCookie, "coderSecret");
+    res.send ({payload: token});
+    
 });
 
 export default router;
