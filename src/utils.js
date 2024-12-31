@@ -19,7 +19,7 @@ export const passportCall = (strategy) => {
     };
   };
 
-const PRIVATE_KEY = process.env.PRIVATE_KEY_JWT || 'CoderKeyComoUnSecret';
+const PRIVATE_KEY = process.env.PRIVATE_KEY_JWT || 'coderSecret';
 const EXPIRES_TIME_TOKEN = process.env.EXPIRES_TIME_TOKEN || '24h';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -41,10 +41,10 @@ export const verifyToken = (req, res, next) => {
         error: "Not authenticated"
     });
     const token = authHeader.split(' ')[1]; 
-    jwt.verify(token, PRIVATE_KEY, (error, credentials) => {
-        if (error) return res.status(403).send({ error: "Not authorized" });
-        req.user = credentials.user;
-        next();
+    const check = jwt.verify(token , 'coderSecret');
+    if (!check) return res.status(401).send({ 
+        error: "Not authenticated"
     });
+    return next();
 };
 

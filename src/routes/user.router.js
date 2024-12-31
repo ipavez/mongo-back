@@ -2,12 +2,11 @@ import { Router } from 'express';
 import userModel from '../models/user.model.js';
 import { isValidPassword, verifyToken } from '../utils.js';
 import jwt from 'jsonwebtoken';
-import pJwt from 'passport-jwt';
 import {passportCall} from '../utils.js';
 import { isLoggedIn, isLoggedOut } from '../middlewares/auth.js';
 
 const router = Router();
-const ExtractJwt = pJwt.ExtractJwt;
+
 
 
 
@@ -44,10 +43,11 @@ router.post('/login', async(req, res) => {
 
 
 
-router.get('/current', passportCall('jwt'),async(req, res) => {
-    const cookies = req.cookies;
-    const token = jwt.verify(cookies.tokenCookie, "coderSecret");
-    res.send ({payload: token});
+router.get('/current', verifyToken ,async(req, res) => {
+    const authHeader = req.headers.authorization;
+    const token = authHeader.split(' ')[1];
+    const check = jwt.verify(token , 'coderSecret');
+    res.send(check);
     
 });
 
