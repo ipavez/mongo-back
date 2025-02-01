@@ -4,7 +4,7 @@ const apiRouter = Router();
 
 apiRouter.get('/' , async (req, res) => {
     try {
-    const {email} = req.params;
+    // const {email} = req.params;
       const users = await userModel.find({});
       res.status(200).send(users);
     } catch (err) {

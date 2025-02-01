@@ -8,16 +8,18 @@ import passport from 'passport';
 import initializePassport from './config/passport.config.js';
 import userRouter from './routes/user.router.js';
 import apiRouter from './routes/api.router.js';
+import connectDB from './config/db.js';
+import cors from 'cors';
 
 const app = express();
-
 dotenv.config(); 
+
 const firmaCookie = process.env.FIRMA_COOKIE || 'firmaCookie';
-const uriMongo = process.env.URI_MONGO || 'urlMONGO';
+const urlMongo = process.env.URL_MONGO || 'urlMONGO';
 const PORT = process.env.PORT || '8080';
 
-
-
+const connection = connectDB(urlMongo);
+app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({extended : true}));
 app.use(cookieParser(firmaCookie)); 
@@ -33,11 +35,3 @@ app.set('view engine','handlebars');
 app.use('/user', userRouter);
 app.use('/', apiRouter);
 
-mongoose.connect(uriMongo)
-    .then( 
-        () =>
-           
-            app.listen(PORT, ()=> {
-                console.log("mongo Listening on PORT: "+PORT);
-            }))
-    .catch((error) => console.error('Error en conexion:', error))

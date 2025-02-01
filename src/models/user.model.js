@@ -4,11 +4,17 @@ import bcrypt from 'bcrypt';
 
 const { Schema } = mongoose;
 
+const collection = 'Users';
 const userSchema = new Schema({
     user_name: { type: String, required: true }, 
     email: { type: String, required: true, unique: true }, 
     role: { type: String, default: 'user' }, 
-    password: { type: String, required: true } 
+    orders:[
+        {
+            type: mongoose.SchemaTypes.ObjectId,
+            ref:'Orders'
+        }
+    ]
 });
 
 
