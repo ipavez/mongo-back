@@ -34,17 +34,5 @@ export const generateToken = (user) => {
 };
 
 
-export const verifyToken = (req, res, next) => {
-    
-    const authHeader = req.headers.authorization;
-    if (!authHeader) return res.status(401).send({ 
-        error: "Not authenticated"
-    });
-    const token = authHeader.split(' ')[1]; 
-    const check = jwt.verify(token , 'coderSecret');
-    if (!check) return res.status(401).send({ 
-        error: "Not authenticated"
-    });
-    return next();
-};
+
 

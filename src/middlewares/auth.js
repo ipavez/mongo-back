@@ -1,7 +1,7 @@
 
 
 export const isLoggedIn = (req, res, next) => {
-    if(req.cookies.tokenCookie){
+    if(req.headers.authorization){
         next(); 
     } else {
         res.redirect('/user/login'); 
@@ -9,7 +9,7 @@ export const isLoggedIn = (req, res, next) => {
 }
 
 export const isLoggedOut = (req, res, next) => {
-    if(req.cookies.tokenCookie){
+    if(req.headers.authorization){
         res.redirect('/user/current'); 
     } else {
         next(); 
